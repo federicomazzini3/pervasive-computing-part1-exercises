@@ -7,6 +7,8 @@ This is a react web app in order to interact with a selected smart coffee.
 It's important that at least one coffee machine is running in order to communicate with it, obviously :)
 
 ## Run it
-`npm start`
+`npm install` to install all the modules
+
+`npm start` to start application
 
 Open a browser on http://localhost:3000/ in order to view and use the app.

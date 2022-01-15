@@ -12,75 +12,74 @@ servient.start().then((WoT) => {
     let intensity;
 
     const intensityStepDefault = (direction) => {
-        if(direction == "down") 
-            if (intensity - 10 >= 0) return 10 
-            else return intensity
+        if (direction == "down")
+            if (intensity - 10 >= 0) return 10
+        else return intensity
 
-         if(direction == "up") 
-             if((intensity + 10) <= 100) return 10 
-             else return 100 - intensity
-        
+        if (direction == "up")
+            if ((intensity + 10) <= 100) return 10
+        else return 100 - intensity
+
         return 10
     };
 
-    const status = () => {return {
-        state: isOn ? "on" : "off",
-        intensity: isOn ? intensity : 0
-    }}
+    const status = () => {
+        return {
+            state: isOn ? "on" : "off",
+            intensity: isOn ? intensity : 0
+        }
+    }
 
     WoT.produce(td).then((thing) => {
         isOn = false;
         intensity = 100;
 
-        thing.setPropertyReadHandler("isOn", async() => isOn);
+        thing.setPropertyReadHandler("isOn", async () => isOn);
 
-        thing.setPropertyReadHandler("isOff", async() => !isOn);
+        thing.setPropertyReadHandler("isOff", async () => !isOn);
 
-        thing.setPropertyReadHandler("intensity", async() => !isOn ? 0 : intensity);
-        
-        thing.setPropertyReadHandler("status", async() => status());
+        thing.setPropertyReadHandler("intensity", async () => !isOn ? 0 : intensity);
 
-        
+        thing.setPropertyReadHandler("status", async () => status());
+
+        thing.setActionHandler("switch", (params, options) => {
+            return performSwitch(
+                () => isOn = !isOn,
+                `Light switched ${isOn ? "on" : "off"}`
+            )
+        })
+
         thing.setActionHandler("switchOn", (params, options) => {
-            isOn = true;
-            console.log("is On: " + isOn)
-            return new Promise((resolve, reject) => {
-                console.log("Switch the light on");
-                resolve({
-                    result: true,
-                    message: "Light switched on"
-                })
-            })
+            return performSwitch(
+                () => isOn = true,
+                `Light switched on`
+            )
         })
 
         thing.setActionHandler("switchOff", (params, options) => {
-            isOn = false;
-            return new Promise((resolve, reject) => {
-                console.log("Switch the light off");
-                resolve({
-                    result: true,
-                    message: "Light switched off"
-                })
-            })
+            return performSwitch(
+                () => isOn = false,
+                `Light switched off`
+            )
         })
 
         thing.setActionHandler("increase", (params, options) => {
             return performIntensityModify(
-                isOn, 
-                options, 
+                isOn,
+                options,
                 intensityStepDefault("up"),
-                (step) => intensity += step, 
-                (step) => `Light increased of ${step}%`, 
+                (step) => intensity += step,
+                (step) => `Light increased of ${step}%`,
                 (reason) => `Light not increased because ${reason}`)
         })
 
         thing.setActionHandler("decrease", (params, options) => {
             return performIntensityModify(
-                isOn, 
-                options, 
+                isOn,
+                options,
                 intensityStepDefault("down"),
-                (step) => intensity -= step, 
-                (step) => `Light decreased of ${step}%`, 
+                (step) => intensity -= step,
+                (step) => `Light decreased of ${step}%`,
                 (reason) => `Light not decreased because ${reason}`)
         })
 
@@ -94,33 +93,39 @@ servient.start().then((WoT) => {
     }).catch((e) => {
         console.log(e);
     });
-}) 
+})
+
+const performSwitch = (action, succMessage) => {
+    action();
+    return new Promise((resolve, reject) => {
+        resolve({
+            result: true,
+            message: succMessage
+        })
+    })
+}
 
 const performIntensityModify = (isOn, options, defaultStep, action, succMessage, failMessage) => {
-    if(isOn){
+    if (isOn) {
         let step = defaultStep;
         if (options && typeof options === "object" && "uriVariables" in options) {
             const uriVariables = options["uriVariables"];
             step = "step" in uriVariables ? uriVariables["step"] : defaultStep;
         }
-        
-        action(step);
 
         return new Promise((resolve, reject) => {
-            console.log(succMessage);
             resolve({
                 result: true,
                 message: succMessage(step)
             })
         })
     } else {
-    return new Promise((resolve, reject) => {
-        console.log(failMessage);
-        resolve({
-            result: false,
-            message: failMessage("the light is off")
+        return new Promise((resolve, reject) => {
+            resolve({
+                result: false,
+                message: failMessage("the light is off")
+            })
         })
-    })
     }
 }
 

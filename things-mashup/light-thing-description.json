@@ -1,0 +1,159 @@
+{
+    "title": "light-thing",
+    "description": "a smart light thing",
+    "support": "git://github.com/eclipse/thingweb.node-wot.git",
+    "@context": ["https://www.w3.org/2019/wot/td/v1"],
+    "properties": {
+        "isOn": {
+            "type": "boolean",
+            "description": "Return if the light is on",
+            "observable": true,
+            "readOnly": true
+        },
+        "isOff": {
+            "type": "boolean",
+            "description": "Return if the light is off",
+            "observable": true,
+            "readOnly": true
+        },
+        "intensity": {
+            "type": "integer",
+            "description": "Return the current intensity of the light",
+            "observable": true,
+            "readOnly": true
+        },
+        "status": {
+            "type": "object",
+            "description": "Return the complete status of the light",
+            "readOnly": true,
+            "properties": {
+                "state" : {
+                    "type": "string",
+                    "enum": ["on", "off"],
+                    "description": "The state of the lamp, if is on or off."
+                },
+                "intensity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "The current level (in percentage) of light intensity produced by the lamp."
+                }
+            }
+        }
+    },
+    "actions": {
+        "increase": {
+            "description": "Increase light intensity",
+            "uriVariables": {
+                "step": { "type": "integer", "minimum": 1, "maximum": 100 }
+            },
+            "output": {
+                "type": "object",
+                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
+                "properties": {
+                    "result": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "decrease": {
+            "description": "Decrease light intensity",
+            "uriVariables": {
+                "step": { "type": "integer", "minimum": 1, "maximum": 100 }
+            },
+            "output": {
+                "type": "object",
+                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
+                "properties": {
+                    "result": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "switchOn": {
+            "description": "Switch on the light",
+            "descriptions": {
+                "it": "Accende la luce"
+            },
+            "output": {
+                "type": "object",
+                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
+                "properties": {
+                    "result": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "switchOff": {
+            "description": "Switch off the light",
+            "descriptions": {
+                "it": "Spegne la luce"
+            },
+            "output": {
+                "type": "object",
+                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
+                "properties": {
+                    "result": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "switch": {
+            "description": "Switch the light with the opposite status",
+            "descriptions": {
+                "en": "Resetting counter value",
+                "de": "Zähler resettieren",
+                "it": "resettare valore"
+            },
+            "output": {
+                "type": "object",
+                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
+                "properties": {
+                    "result": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "events": {
+        "change": {
+            "description": "change event",
+            "data": {
+                "type": "object",
+                "properties:": {
+                    "state" : {
+                        "type": "string",
+                        "enum": ["on", "off"],
+                        "description": "The state of the lamp, if is on or off."
+                    },
+                    "intensity": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100,
+                        "description": "The current level (in percentage) of light intensity produced by the lamp."
+                    }
+                }
+            }
+        }
+    }
+}

@@ -129,11 +129,6 @@
         },
         "switch": {
             "description": "Switch the light with the opposite status",
-            "descriptions": {
-                "en": "Resetting counter value",
-                "de": "Zähler resettieren",
-                "it": "resettare valore"
-            },
             "output": {
                 "type": "object",
                 "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",

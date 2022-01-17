@@ -44,22 +44,35 @@ servient.start().then((WoT) => {
 
         thing.setActionHandler("switch", (params, options) => {
             return performSwitch(
-                () => isOn = !isOn,
+                () => {
+                    isOn = !isOn;
+                    thing.emitEvent("changeState", `${isOn ? "on" : "off"}`)
+                },
                 `Light switched ${isOn ? "on" : "off"}`
             )
         })
 
         thing.setActionHandler("switchOn", (params, options) => {
             return performSwitch(
-                () => isOn = true,
-                `Light switched on`
+                () => !isOn,
+                () => {
+                    isOn = true;
+                    thing.emitEvent("changeState", "on")
+                },
+                `Light switched on`,
+                `Light is already on`
             )
         })
 
         thing.setActionHandler("switchOff", (params, options) => {
             return performSwitch(
-                () => isOn = false,
-                `Light switched off`
+                () => isOn,
+                () => {
+                    isOn = false
+                    thing.emitEvent("changeState", "off")
+                },
+                `Light switched off`,
+                `Light is already off`
             )
         })
 
@@ -68,7 +81,10 @@ servient.start().then((WoT) => {
                 isOn,
                 options,
                 intensityStepDefault("up"),
-                (step) => intensity += step,
+                (step) => {
+                    intensity += step;
+                    if(step != 0) thing.emitEvent("changeIntensity", intensity)
+                },
                 (step) => `Light increased of ${step}%`,
                 (reason) => `Light not increased because ${reason}`)
         })
@@ -78,10 +94,16 @@ servient.start().then((WoT) => {
                 isOn,
                 options,
                 intensityStepDefault("down"),
-                (step) => intensity -= step,
+                (step) => {
+                    intensity -= step;
+                    if(step != 0) thing.emitEvent("changeIntensity", intensity)
+                },
                 (step) => `Light decreased of ${step}%`,
                 (reason) => `Light not decreased because ${reason}`)
         })
+
+        thing.subscribeEvent("changeState", (e) => console.log("########## EVENT NEW STATE " + e + " ##########"))
+        thing.subscribeEvent("changeIntensity", (e) => console.log("########## EVENT NEW INTENSITY " + e + " ##########"))
 
 
         // Finally expose the thing
@@ -95,14 +117,23 @@ servient.start().then((WoT) => {
     });
 })
 
-const performSwitch = (action, succMessage) => {
-    action();
-    return new Promise((resolve, reject) => {
-        resolve({
-            result: true,
-            message: succMessage
+const performSwitch = (evaluate, action, succMessage, failMessage) => {
+    if(evaluate()) {
+        action();
+        return new Promise((resolve, reject) => {
+            resolve({
+                result: true,
+                message: succMessage
+            })
         })
-    })
+    } else {
+        return new Promise((resolve, reject) => {
+            resolve({
+                result: false,
+                message: failMessage
+            })
+        })
+    }
 }
 
 const performIntensityModify = (isOn, options, defaultStep, action, succMessage, failMessage) => {
@@ -112,6 +143,8 @@ const performIntensityModify = (isOn, options, defaultStep, action, succMessage,
             const uriVariables = options["uriVariables"];
             step = "step" in uriVariables ? uriVariables["step"] : defaultStep;
         }
+
+        action(step);
 
         return new Promise((resolve, reject) => {
             resolve({
@@ -131,6 +164,14 @@ const performIntensityModify = (isOn, options, defaultStep, action, succMessage,
 
 /*
 SCHELETON
+const Servient = require('@node-wot/core').Servient;
+const HttpServer = require('@node-wot/binding-http').HttpServer;
+const td = require('./light-thing-description.json')
+
+const servient = new Servient();
+servient.addServer(new HttpServer({
+    port: 8080
+}));
 
 servient.start().then((WoT) => {
     WoT.produce({

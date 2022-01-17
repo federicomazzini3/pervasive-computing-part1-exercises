@@ -2,7 +2,9 @@
     "title": "light-thing",
     "description": "a smart light thing",
     "support": "git://github.com/eclipse/thingweb.node-wot.git",
-    "@context": ["https://www.w3.org/2019/wot/td/v1"],
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1"
+    ],
     "properties": {
         "isOn": {
             "type": "boolean",
@@ -27,9 +29,12 @@
             "description": "Return the complete status of the light",
             "readOnly": true,
             "properties": {
-                "state" : {
+                "state": {
                     "type": "string",
-                    "enum": ["on", "off"],
+                    "enum": [
+                        "on",
+                        "off"
+                    ],
                     "description": "The state of the lamp, if is on or off."
                 },
                 "intensity": {
@@ -45,7 +50,11 @@
         "increase": {
             "description": "Increase light intensity",
             "uriVariables": {
-                "step": { "type": "integer", "minimum": 1, "maximum": 100 }
+                "step": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                }
             },
             "output": {
                 "type": "object",
@@ -63,7 +72,11 @@
         "decrease": {
             "description": "Decrease light intensity",
             "uriVariables": {
-                "step": { "type": "integer", "minimum": 1, "maximum": 100 }
+                "step": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                }
             },
             "output": {
                 "type": "object",
@@ -136,23 +149,22 @@
         }
     },
     "events": {
-        "change": {
-            "description": "change event",
+        "changeState": {
+            "description": "State on/off change",
             "data": {
-                "type": "object",
-                "properties:": {
-                    "state" : {
-                        "type": "string",
-                        "enum": ["on", "off"],
-                        "description": "The state of the lamp, if is on or off."
-                    },
-                    "intensity": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 100,
-                        "description": "The current level (in percentage) of light intensity produced by the lamp."
-                    }
-                }
+                "type": "string",
+                "enum": [
+                    "on",
+                    "off"
+                ]
+            }
+        },
+        "changeIntensity": {
+            "description": "Intensity change",
+            "data": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
             }
         }
     }

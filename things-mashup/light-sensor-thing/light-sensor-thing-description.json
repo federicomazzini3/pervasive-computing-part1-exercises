@@ -1,0 +1,23 @@
+{
+    "title": "light-sensor-thing",
+    "description": "a smart light sensor thing",
+    "support": "git://github.com/eclipse/thingweb.node-wot.git",
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1"
+    ],
+    "properties": {
+        "lightLevel": {
+            "type": "integer",
+            "description": "Return the current light level of the room",
+            "observable": true,
+            "readOnly": true,
+            "minimum": 0
+        }
+    },
+    "actions": {
+
+    }, 
+    "events": {
+        
+    }
+}

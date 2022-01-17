@@ -1,0 +1,60 @@
+{
+    "title": "presence-detector-thing",
+    "description": "a smart presence detector thing",
+    "support": "git://github.com/eclipse/thingweb.node-wot.git",
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1"
+    ],
+    "properties": {
+        "presence": {
+            "type": "boolean",
+            "description": "Return if someone is in the room",
+            "observable": true,
+            "readOnly": true
+        },
+        "presenceTimer": {
+            "type": "integer",
+            "description": "the seconds after which, if no presence is detected, it is assumed that there is no one in the room",
+            "observable": true,
+            "readOnly": true
+        }
+    },
+    "actions": {
+        "setPresenceTimer": {
+            "description": "Set the presence timer seconds",
+            "uriVariables": {
+                "seconds": {
+                    "type": "integer",
+                    "minimum": 30,
+                    "maximum": 3600
+                }
+            },
+            "output": {
+                "type": "object",
+                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
+                "properties": {
+                    "result": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "events": {
+        "detectPresence": {
+            "description": "The sensor detect a presence inside the room",
+            "data": {
+                "type": "string"
+            }
+        },
+        "nonDetectPresence": {
+            "description": "The sensor doesn't detect a presence inside the room",
+            "data": {
+                "type": "string"
+            }
+        }
+    }
+}

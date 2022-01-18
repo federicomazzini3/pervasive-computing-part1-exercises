@@ -5,31 +5,16 @@
     "@context": [
         "https://www.w3.org/2019/wot/td/v1"
     ],
-    "properties": {},
-    "actions": {
-        "triggerVocalCommand": {
-            "description": "For test purpose: trigger a new vocal command",
-            "uriVariables": {
-                "command": {
-                    "type": "string"
-                }
-            },
-            "output": {
-                "type": "object",
-                "description": "Returns true/false and a message when all invoked promises are resolved (asynchronous).",
-                "properties": {
-                    "result": {
-                        "type": "boolean"
-                    },
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            }
+    "properties": {
+        "command": {
+            "type": "string",
+            "description": "The last command triggered by the user",
+            "observable": true
         }
     },
+    "actions": {},
     "events": {
-        "vocalCommand": {
+        "newCommand": {
             "description": "The sensor detect a new command",
             "data": {
                 "type": "object",

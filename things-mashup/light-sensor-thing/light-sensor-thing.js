@@ -1,34 +1,13 @@
-const Servient = require('@node-wot/core').Servient;
-const HttpServer = require('@node-wot/binding-http').HttpServer;
-const td = require('./light-sensor-thing-description.json')
+function produce(WoT, td) {
 
-const servient = new Servient();
-servient.addServer(new HttpServer({
-    port: 8080
-}));
-
-
-servient.start().then((WoT) => {
-    let lightLevel;
-    let lightDirection; //test purpose
-    let minLightLevel = 0; //test purpose
-    let maxLightLevel = 1000; //test purpose
     WoT.produce(td).then((thing) => {
         lightLevel = 0;
 
+        thing.setPropertyWriteHandler("lightLevel", (level) => lightLevel = level)
         thing.setPropertyReadHandler("lightLevel", async () => lightLevel)
 
         // Finally expose the thing
         thing.expose().then(() => {
-
-            setInterval(() => {
-                if(lightLevel >= maxLightLevel) lightDirection = "down"
-                else if (lightLevel <= minLightLevel) lightDirection = "up"
-
-                if(lightDirection == "up") lightLevel += 1
-                else if (lightDirection == "down") lightLevel -= 1
-                console.log("Light level: " + lightLevel)
-            }, 1000);
 
             console.info(`${thing.getThingDescription().title} ready`);
         });
@@ -36,4 +15,6 @@ servient.start().then((WoT) => {
     }).catch((e) => {
         console.log(e);
     });
-})
+}
+
+module.exports = {produce}

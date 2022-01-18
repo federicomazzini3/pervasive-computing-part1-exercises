@@ -9,8 +9,7 @@
         "presence": {
             "type": "boolean",
             "description": "Return if someone is in the room",
-            "observable": true,
-            "readOnly": true
+            "observable": true
         },
         "presenceTimer": {
             "type": "integer",

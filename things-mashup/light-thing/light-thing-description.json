@@ -27,6 +27,7 @@
         "status": {
             "type": "object",
             "description": "Return the complete status of the light",
+            "observable": true,
             "readOnly": true,
             "properties": {
                 "state": {

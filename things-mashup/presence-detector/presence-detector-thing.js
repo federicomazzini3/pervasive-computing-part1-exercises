@@ -1,12 +1,3 @@
-const Servient = require('@node-wot/core').Servient;
-const HttpServer = require('@node-wot/binding-http').HttpServer;
-const td = require('./presence-detector-thing-description.json')
-
-const servient = new Servient();
-servient.addServer(new HttpServer({
-    port: 8080
-}));
-
 /*
 If the sensor detect movement it starts a timer. Timer is resetted every time the sensor detect a movement.
 If the sensor doesn't detect any movement for X seconds (default 60), the movement value (called presence) is set to false.
@@ -14,10 +5,10 @@ If the sensor doesn't detect any movement for X seconds (default 60), the moveme
 The user can specify the seconds for the timer. If a timer was already started, it will be modified with the difference. 
 */
 
-
-servient.start().then((WoT) => {
+function produce(WoT, td) {
     let presenceTimer = 30; //seconds after which the presence is reset
     let currentTimer = presenceTimer; //current seconds left to reset the presence
+    let currentCountdown;
     WoT.produce(td).then((thing) => {
 
         thing.writeProperty("presence", false);
@@ -28,18 +19,19 @@ servient.start().then((WoT) => {
             currentTimer = presenceTimer;
 
             if (presence) {
+                clearInterval(currentCountdown)
                 thing.emitEvent("detectPresence", "The sensor has detected movement")
-                let countDown = setInterval(() => {
+                currentCountdown = setInterval(() => {
                     currentTimer -= 1;
                     console.log(`Seconds left to reset presence: ${currentTimer}`)
                     if (currentTimer == 0) {
                         console.log("Presence reset");
-                        clearInterval(countDown);
+                        clearInterval(currentCountdown);
                         thing.writeProperty("presence", false);
                     }
                 }, 1000);
-            } else 
-            thing.emitEvent("nonDetectPresence", `The sensor hasn't detect movement for ${presenceTimer} seconds`)
+            } else
+                thing.emitEvent("nonDetectPresence", `The sensor hasn't detect movement for ${presenceTimer} seconds`)
         })
 
         thing.setActionHandler("setPresenceTimer", (params, options) => {
@@ -78,7 +70,7 @@ servient.start().then((WoT) => {
                 })
             })
 
-            if(newPresenceTimer - presenceTimer > 0)
+            if (newPresenceTimer - presenceTimer > 0)
                 currentTimer += newPresenceTimer - presenceTimer;
             else currentTimer = newPresenceTimer
             presenceTimer = newPresenceTimer;
@@ -94,20 +86,14 @@ servient.start().then((WoT) => {
 
         // Finally expose the thing
         thing.expose().then(() => {
-
-            thing.writeProperty("presence", true)
-            thing.subscribeEvent("detectPresence", (e) => console.log(e))
-            thing.subscribeEvent("nonDetectPresence", (e) => console.log(e))
-
-            setInterval(() => {
-                if(Math.random() < 0.5)
-                    thing.writeProperty("presence", true)
-            }, 40000);
-
             console.info(`${thing.getThingDescription().title} ready`);
         });
         console.log(`Produced ${thing.getThingDescription().title}`);
     }).catch((e) => {
         console.log(e);
     });
-})
+
+
+}
+
+module.exports = { produce };

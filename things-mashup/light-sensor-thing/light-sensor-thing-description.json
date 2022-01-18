@@ -10,7 +10,6 @@
             "type": "integer",
             "description": "Return the current light level of the room",
             "observable": true,
-            "readOnly": true,
             "minimum": 0
         }
     },

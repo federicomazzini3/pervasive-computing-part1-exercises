@@ -1,48 +1,20 @@
-const Servient = require('@node-wot/core').Servient;
-const HttpServer = require('@node-wot/binding-http').HttpServer;
-const td = require('./vocal-ui-thing-description.json')
+function produce (WoT, td) {
 
-const servient = new Servient();
-servient.addServer(new HttpServer({
-    port: 8080
-}));
-
-
-servient.start().then((WoT) => {
+    let lastCommand;
 
     WoT.produce(td).then((thing) => {
 
-        thing.setActionHandler("triggerVocalCommand", (params, options) => {
-            let command;
-            if (options && typeof options === "object" && "uriVariables" in options) {
-                const uriVariables = options["uriVariables"];
-                command = "command" in uriVariables ? uriVariables["command"] : null;
-            }
-
-            if (command != null) {
-                thing.emitEvent("vocalCommand", {
-                    message: "New vocal command by user",
-                    command: command
-                })
-                return new Promise((resolve, reject) => {
-                    resolve({
-                        result: true,
-                        message: `New command triggered`
-                    });
-                })
-            } else {
-                return new Promise((resolve, reject) => {
-                    resolve({
-                        result: false,
-                        message: `Can't handle the command`
-                    });
-                })
-            }
+        thing.setPropertyWriteHandler("command", (command) => {
+            lastCommand = command
+            thing.emitEvent("newCommand", {
+                message: "New command by the user",
+                command: lastCommand
+            })
         })
         // Finally expose the thing
         thing.expose().then(() => {
 
-            thing.subscribeEvent("vocalCommand", (e) => console.log(e))
+            thing.subscribeEvent("newCommand", (e) => console.log(e))
 
             console.info(`${thing.getThingDescription().title} ready`);
         });
@@ -50,4 +22,6 @@ servient.start().then((WoT) => {
     }).catch((e) => {
         console.log(e);
     });
-})
+}
+
+module.exports = { produce };

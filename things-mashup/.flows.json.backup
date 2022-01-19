@@ -16,19 +16,19 @@
         "env": []
     },
     {
-        "id": "0a01ba463ee2878f",
-        "type": "tab",
-        "label": "Debug",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "71513d26861b0ae7",
         "type": "tab",
         "label": "ListenUser",
         "disabled": false,
         "info": " * A user can request to switch on or off the light by issuing a proper vocal command\n * User's requests override policies (1) and (2), that is:\n    -  if the user requested to switch off the light, the light should be kept off or on, the light should be kept off or on in spite of (1)(2).\n    - The user can request to reset overriding by issuing a \"reset\" vocal command.\n",
+        "env": []
+    },
+    {
+        "id": "0a01ba463ee2878f",
+        "type": "tab",
+        "label": "Debug",
+        "disabled": false,
+        "info": "",
         "env": []
     },
     {
@@ -371,7 +371,7 @@
         "type": "function",
         "z": "805f51cf036ad5bd",
         "name": "",
-        "func": "let currentLightLevel = msg.payload.lightLevel;\nlet presence = msg.payload.presence;\nlet lightIsOn = msg.payload.lightState.state == \"on\" ? true : false;\nlet lightIntensity = msg.payload.lightState.intensity;\nlet lightTarget = global.get(\"targetLight\");\n\nlet currentLightInRoom = currentLightLevel + (global.get(\"maxLumenLight\") * (lightIntensity / 100));\n\n\nif(lightIsOn && presence){\n    if(lightIntensity < 100 && (lightTarget - currentLightInRoom) > 50 ){\n        return msg;\n    }\n}\n\nreturn;",
+        "func": "let currentLightLevel = msg.payload.lightLevel;\nlet presence = msg.payload.presence;\nlet lightIsOn = msg.payload.lightState.state == \"on\" ? true : false;\nlet lightIntensity = msg.payload.lightState.intensity;\nlet lightTarget = global.get(\"targetLight\");\n\nlet currentLightInRoom = currentLightLevel + (global.get(\"maxLumenLight\") * (lightIntensity / 100));\n\n\nif(lightIsOn && presence){\n    if(lightIntensity < 100 && (lightTarget - currentLightInRoom) > 100 ){\n        return msg;\n    }\n}\n\nreturn;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -405,7 +405,7 @@
         "type": "function",
         "z": "805f51cf036ad5bd",
         "name": "",
-        "func": "let currentLightLevel = msg.payload.lightLevel;\nlet presence = msg.payload.presence;\nlet lightIsOn = msg.payload.lightState.state == \"on\" ? true : false;\nlet lightIntensity = msg.payload.lightState.intensity;\nlet lightTarget = global.get(\"targetLight\");\n\nlet currentLightInRoom = currentLightLevel + (global.get(\"maxLumenLight\") * (lightIntensity / 100));\n\nif(lightIsOn && presence){\n    if(lightIntensity > 0 && (currentLightInRoom - lightTarget) > 50){\n        return msg;\n    }\n}\n\nreturn;",
+        "func": "let currentLightLevel = msg.payload.lightLevel;\nlet presence = msg.payload.presence;\nlet lightIsOn = msg.payload.lightState.state == \"on\" ? true : false;\nlet lightIntensity = msg.payload.lightState.intensity;\nlet lightTarget = global.get(\"targetLight\");\n\nlet currentLightInRoom = currentLightLevel + (global.get(\"maxLumenLight\") * (lightIntensity / 100));\n\nif(lightIsOn && presence){\n    if(lightIntensity > 0 && (currentLightInRoom - lightTarget) > 100){\n        return msg;\n    }\n}\n\nreturn;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -430,6 +430,130 @@
         "uriVariables": "",
         "x": 680,
         "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b4572588f1bf048b",
+        "type": "subscribe-event",
+        "z": "71513d26861b0ae7",
+        "name": "Event: new user command",
+        "topic": "",
+        "thing": "031992dc8a25c061",
+        "event": "newCommand",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "a13e0d64b6fc1d40",
+                "a6ea1ad0380a1133",
+                "c360f314a27699c5"
+            ]
+        ]
+    },
+    {
+        "id": "a13e0d64b6fc1d40",
+        "type": "function",
+        "z": "71513d26861b0ae7",
+        "name": "filter reset",
+        "func": "if(msg.payload.command == \"reset\") \n    return msg;\nreturn;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 120,
+        "wires": [
+            [
+                "d5658a623b39ff7c"
+            ]
+        ]
+    },
+    {
+        "id": "a6ea1ad0380a1133",
+        "type": "function",
+        "z": "71513d26861b0ae7",
+        "name": "filter switch on",
+        "func": "if(msg.payload.command == \"light on\") \n    return msg;\nreturn;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 60,
+        "wires": [
+            [
+                "d5658a623b39ff7c",
+                "24b2d93fa52c04fa"
+            ]
+        ]
+    },
+    {
+        "id": "c360f314a27699c5",
+        "type": "function",
+        "z": "71513d26861b0ae7",
+        "name": "filter switch off",
+        "func": "if(msg.payload.command == \"light off\") \n    return msg;\nreturn;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 180,
+        "wires": [
+            [
+                "d5658a623b39ff7c",
+                "a8a3fbf8000cd462"
+            ]
+        ]
+    },
+    {
+        "id": "d5658a623b39ff7c",
+        "type": "function",
+        "z": "71513d26861b0ae7",
+        "name": "override automation",
+        "func": "if(msg.payload.command == \"reset\")\n    global.set(\"userCommand\", false)\nelse global.set(\"userCommand\", true)\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24b2d93fa52c04fa",
+        "type": "invoke-action",
+        "z": "71513d26861b0ae7",
+        "name": "",
+        "topic": "",
+        "thing": "4538886161bf3ff1",
+        "action": "switchOn",
+        "uriVariables": "",
+        "x": 610,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a8a3fbf8000cd462",
+        "type": "invoke-action",
+        "z": "71513d26861b0ae7",
+        "name": "",
+        "topic": "",
+        "thing": "4538886161bf3ff1",
+        "action": "switchOff",
+        "uriVariables": "",
+        "x": 610,
+        "y": 180,
         "wires": [
             []
         ]
@@ -667,7 +791,7 @@
         "thing": "e02cb0d4509c583a",
         "property": "presence",
         "uriVariables": "",
-        "x": 350,
+        "x": 370,
         "y": 200,
         "wires": []
     },
@@ -1011,130 +1135,6 @@
             [
                 "984f763f85c28181"
             ]
-        ]
-    },
-    {
-        "id": "b4572588f1bf048b",
-        "type": "subscribe-event",
-        "z": "71513d26861b0ae7",
-        "name": "Event: new user command",
-        "topic": "",
-        "thing": "031992dc8a25c061",
-        "event": "newCommand",
-        "x": 130,
-        "y": 120,
-        "wires": [
-            [
-                "a13e0d64b6fc1d40",
-                "a6ea1ad0380a1133",
-                "c360f314a27699c5"
-            ]
-        ]
-    },
-    {
-        "id": "a13e0d64b6fc1d40",
-        "type": "function",
-        "z": "71513d26861b0ae7",
-        "name": "filter reset",
-        "func": "if(msg.payload.command == \"reset\") \n    return msg;\nreturn;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 360,
-        "y": 120,
-        "wires": [
-            [
-                "d5658a623b39ff7c"
-            ]
-        ]
-    },
-    {
-        "id": "a6ea1ad0380a1133",
-        "type": "function",
-        "z": "71513d26861b0ae7",
-        "name": "filter switch on",
-        "func": "if(msg.payload.command == \"light on\") \n    return msg;\nreturn;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 360,
-        "y": 60,
-        "wires": [
-            [
-                "d5658a623b39ff7c",
-                "24b2d93fa52c04fa"
-            ]
-        ]
-    },
-    {
-        "id": "c360f314a27699c5",
-        "type": "function",
-        "z": "71513d26861b0ae7",
-        "name": "filter switch off",
-        "func": "if(msg.payload.command == \"light off\") \n    return msg;\nreturn;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 360,
-        "y": 180,
-        "wires": [
-            [
-                "d5658a623b39ff7c",
-                "a8a3fbf8000cd462"
-            ]
-        ]
-    },
-    {
-        "id": "d5658a623b39ff7c",
-        "type": "function",
-        "z": "71513d26861b0ae7",
-        "name": "override automation",
-        "func": "if(msg.payload.command == \"reset\")\n    global.set(\"userCommand\", false)\nelse global.set(\"userCommand\", true)\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 590,
-        "y": 120,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "24b2d93fa52c04fa",
-        "type": "invoke-action",
-        "z": "71513d26861b0ae7",
-        "name": "",
-        "topic": "",
-        "thing": "4538886161bf3ff1",
-        "action": "switchOn",
-        "uriVariables": "",
-        "x": 610,
-        "y": 60,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "a8a3fbf8000cd462",
-        "type": "invoke-action",
-        "z": "71513d26861b0ae7",
-        "name": "",
-        "topic": "",
-        "thing": "4538886161bf3ff1",
-        "action": "switchOff",
-        "uriVariables": "",
-        "x": 610,
-        "y": 180,
-        "wires": [
-            []
         ]
     }
 ]

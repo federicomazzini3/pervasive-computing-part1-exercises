@@ -13,7 +13,7 @@
         },
         "presenceTimer": {
             "type": "integer",
-            "description": "the seconds after which, if no presence is detected, it is assumed that there is no one in the room",
+            "description": "The seconds after which, if no presence is detected, it is assumed that there is no one in the room",
             "observable": true,
             "readOnly": true
         }
@@ -50,7 +50,7 @@
             }
         },
         "nonDetectPresence": {
-            "description": "The sensor doesn't detect a presence inside the room",
+            "description": "The presence timer arrive to zero after the last presence detected",
             "data": {
                 "type": "string"
             }

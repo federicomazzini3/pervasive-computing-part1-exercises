@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "node-red": "^2.1.6",
+    "node-red-contrib-web-of-things": "^1.2.4"
+  }
+}

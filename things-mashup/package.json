@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@node-wot/binding-http": "^0.7.8",
-    "@node-wot/core": "^0.7.8",
-    "node-fetch": "^3.1.0",
-    "node-red-contrib-web-of-things": "^1.2.4"
-  }
-}

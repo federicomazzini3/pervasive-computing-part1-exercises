@@ -1,6 +1,7 @@
 package api;
 
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 
 public interface LightThingAPI {
 
@@ -16,20 +17,20 @@ public interface LightThingAPI {
     Future<String> getStatus();
 
     /** ACTIONS **/
-    Future<Void> increase();
+    Future<String> increase();
 
-    Future<Void> increase(int step);
+    Future<String> increase(Integer step);
 
-    Future<Void> decrease();
+    Future<String> decrease();
 
-    Future<Void> decrease(int step);
+    Future<String> decrease(Integer step);
 
-    Future<Void> switchOn();
+    Future<String> switchOn();
 
-    Future<Void> switchOff();
+    Future<String> switchOff();
 
     /** EVENTS **/
-    Future<String> subscribeToChangeState();
+    void subscribeToChangeState(Handler<String> handler);
 
-    Future<String> subscribeToChangeIntensity();
+    void subscribeToChangeIntensity(Handler<Integer> handler);
 }

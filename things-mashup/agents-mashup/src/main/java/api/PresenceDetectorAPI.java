@@ -1,6 +1,7 @@
 package api;
 
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 
 public interface PresenceDetectorAPI {
 
@@ -12,10 +13,10 @@ public interface PresenceDetectorAPI {
     Future<Integer> getPresenceTimer();
 
     /** ACTIONS **/
-    Future<Void> setPresenceTimer();
+    Future<Void> setPresenceTimer(Integer seconds);
 
     /** EVENTS **/
-    Future<String> subscribeToDetectPresence();
+    void subscribeToDetectPresence(Handler<Boolean> handler);
 
-    Future<String> subscribeToNonDetectPresence();
+    void subscribeToNonDetectPresence(Handler<Boolean> handler);
 }

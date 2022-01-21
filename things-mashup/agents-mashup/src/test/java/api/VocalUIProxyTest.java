@@ -1,9 +1,10 @@
 package api;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,38 +14,36 @@ class VocalUIProxyTest {
 
 
     @Test
-    void getCommand() throws InterruptedException {
+    void getCommand() throws InterruptedException, ExecutionException {
+        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
+
         vocalUI.getCommand()
                 .onSuccess(result ->
                 {
                     System.out.println(result);
+                    completableFuture.complete(true);
                 })
                 .onFailure(message -> {
                     System.out.println(message);
                 });
-        Thread.sleep(5000);
+
+        assertEquals(true, completableFuture.get());
     }
 
     @Test
-    void testVerticle() throws InterruptedException {
-        TestVerticle verticle = new TestVerticle(vocalUI);
-        Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(verticle);
-        vertx.deployVerticle(verticle);
-        Thread.sleep(50000);
-    }
+    void subscribeToNewCommand() throws InterruptedException, ExecutionException {
+        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
 
-    private class TestVerticle extends AbstractVerticle{
-        VocalUIAPI vocalUI;
+        int eventsToListen = 4;
+        AtomicInteger round = new AtomicInteger(0);
 
-        public TestVerticle(VocalUIAPI vocalUI){
-            this.vocalUI = vocalUI;
-        }
+        vocalUI.subscribeToNewCommand(command -> {
+            System.out.println("New command: " + command);
+            round.set(round.get() + 1);
+            if(round.get() == eventsToListen)
+                completableFuture.complete(round.intValue());
+        });
 
-        public void start(){
-            vocalUI.subscribeToNewCommand(command -> {
-                System.out.println(command + '\n' + this.getVertx().toString());
-            });
-        }
+        assertEquals(eventsToListen, completableFuture.get());
     }
 }

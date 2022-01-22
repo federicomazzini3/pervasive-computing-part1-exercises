@@ -41,21 +41,25 @@ class PresenceDetectorProxyTest {
     }
 
     @Test
-    void setPresenceTimer() throws ExecutionException, InterruptedException {
-        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
-        presenceDetector.setPresenceTimer(30)
-                .onSuccess(res -> {
-                    System.out.println(res);
-                    presenceDetector.getPresenceTimer()
-                            .onSuccess(presenceTimer -> {
-                                System.out.println(presenceTimer);
-                                completableFuture.complete(presenceTimer);
-                            });
-                })
-                .onFailure(err -> {
-                    System.out.println(err);
-                });
-        assertEquals(30, completableFuture.get());
+    void setPresenceTest() throws ExecutionException, InterruptedException {
+        CompletableFuture<Boolean> completableFuture1 = new CompletableFuture<>();
+        CompletableFuture<Boolean> completableFuture2 = new CompletableFuture<>();
+        presenceDetector.getPresence()
+                        .onSuccess(res1 -> {
+                            System.out.println("The initial value is " + res1);
+                            completableFuture1.complete(res1);
+                            presenceDetector.setPresence()
+                                    .onSuccess(res2 -> {
+                                        System.out.println("Write property done");
+                                        presenceDetector.getPresence()
+                                                .onSuccess(res3 -> {
+                                                    System.out.println("Final value is " + res3);
+                                                    completableFuture2.complete(res3);
+                                                });
+                                    });
+                        });
+        assertEquals(false, completableFuture1.get());
+        assertEquals(true, completableFuture2.get());
     }
 
     @Test

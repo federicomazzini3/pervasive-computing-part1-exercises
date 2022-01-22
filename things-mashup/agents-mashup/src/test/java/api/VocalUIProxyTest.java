@@ -31,6 +31,28 @@ class VocalUIProxyTest {
     }
 
     @Test
+    void setCommand() throws InterruptedException, ExecutionException {
+        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+
+        vocalUI.getCommand()
+                .onSuccess(result ->
+                {
+                    System.out.println(result);
+                    vocalUI.setCommand("switchOn").onSuccess(result2 -> {
+                        vocalUI.getCommand().onSuccess(result3 -> {
+                            System.out.println(result3);
+                            completableFuture.complete(result3);
+                        });
+                    });
+                })
+                .onFailure(message -> {
+                    System.out.println(message);
+                });
+
+        assertEquals("\"switchOn\"", completableFuture.get());
+    }
+
+    @Test
     void subscribeToNewCommand() throws InterruptedException, ExecutionException {
         CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
 

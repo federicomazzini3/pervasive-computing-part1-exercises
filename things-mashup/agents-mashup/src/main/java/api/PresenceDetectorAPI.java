@@ -12,8 +12,7 @@ public interface PresenceDetectorAPI {
 
     Future<Integer> getPresenceTimer();
 
-    /** ACTIONS **/
-    Future<Void> setPresenceTimer(Integer seconds);
+    Future<Void> setPresence();
 
     /** EVENTS **/
     void subscribeToDetectPresence(Handler<Boolean> handler);

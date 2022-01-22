@@ -4,6 +4,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
 import java.util.UUID;
@@ -55,6 +57,21 @@ public class VocalUIProxy implements VocalUIAPI{
     }
 
     @Override
+    public Future<Void> setCommand(String command) {
+        Promise<Void> promise = Promise.promise();
+        client.put(thingPort, thingHost, PROPERTY_COMMAND)
+                .sendBuffer(Buffer.buffer(command))
+                .onSuccess(response -> {
+                    System.out.println("PUT request to: " + thingHost+":"+thingPort + PROPERTY_COMMAND);
+                    promise.complete();
+                })
+                .onFailure(err -> {
+                    promise.fail("Can't retrieve light level from: " + thingId + "; " + err.getMessage());
+                });
+        return promise.future();
+    }
+
+    @Override
     public void subscribeToNewCommand(Handler<String> handler){
         UUID id = UUID.randomUUID();
         this.longPollNewCommand(id);
@@ -69,7 +86,8 @@ public class VocalUIProxy implements VocalUIAPI{
         client.get(thingPort, thingHost, EVENT_NEWCOMMAND)
                 .send()
                 .onSuccess(response -> {
-                    this.vertx.eventBus().publish(EVENT_NEWCOMMAND_ADDRESS + id, response.body().toString());
+                    JsonObject res = response.bodyAsJsonObject();
+                    this.vertx.eventBus().publish(EVENT_NEWCOMMAND_ADDRESS + id, res.getString("command"));
                     System.out.println("new longpoll request");
                     promise.complete();
                 })

@@ -4,6 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.WebClient;
 
 import java.util.UUID;
@@ -75,18 +76,16 @@ public class PresenceDetectorProxy implements PresenceDetectorAPI {
     }
 
     @Override
-    public Future<Void> setPresenceTimer(Integer seconds) {
+    public Future<Void> setPresence() {
         Promise<Void> promise = Promise.promise();
-        client
-                .post(this.thingPort, thingHost, ACTION_SETPRESENCETIMER)
-                .addQueryParam("seconds", seconds.toString())
-                .send()
+        client.put(thingPort, thingHost, PROPERTY_PRESENCE)
+                .sendBuffer(Buffer.buffer("true"))
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
-                    promise.complete(null);
+                    System.out.println("PUT request to: " + thingHost+":"+thingPort + PROPERTY_PRESENCE);
+                    promise.complete();
                 })
                 .onFailure(err -> {
-                    promise.fail("Something went wrong " + err.getMessage());
+                    promise.fail("Can't retrieve light level from: " + thingId + "; " + err.getMessage());
                 });
         return promise.future();
     }

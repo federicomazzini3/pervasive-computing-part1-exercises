@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LightThingProxyTest {
 
-    LightThingProxy lightThing = new LightThingProxy("light-thing", "localhost", 8084);
+    LightThingProxy lightThing = new LightThingProxy("light-thing", "localhost", 8084, 1000);
 
     @Test
     void isOn() throws ExecutionException, InterruptedException {

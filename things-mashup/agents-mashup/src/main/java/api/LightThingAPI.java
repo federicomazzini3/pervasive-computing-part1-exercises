@@ -5,6 +5,8 @@ import io.vertx.core.Handler;
 
 public interface LightThingAPI {
 
+    int getMaxLumen();
+
     String getId();
 
     /** PROPERTIES **/

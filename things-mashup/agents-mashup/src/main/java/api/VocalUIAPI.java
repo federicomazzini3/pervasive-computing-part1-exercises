@@ -10,6 +10,8 @@ public interface VocalUIAPI {
     /** PROPERTIES **/
     Future<String> getCommand();
 
+    Future<Void> setCommand(String command);
+
     /** EVENTS **/
 
     void subscribeToNewCommand(Handler<String> handler);

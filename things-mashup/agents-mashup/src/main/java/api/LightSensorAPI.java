@@ -1,6 +1,7 @@
 package api;
 
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 
 public interface LightSensorAPI {
 
@@ -8,4 +9,9 @@ public interface LightSensorAPI {
 
     /** PROPERTIES **/
     Future<Integer> getLightLevel();
+
+    Future<Void> setLightLevel(Integer newLightLevel);
+
+    /** EVENTS **/
+    void subscribeToChangeLightLevel(Handler<Integer> handler);
 }

@@ -17,6 +17,8 @@ public class LightThingProxy implements LightThingAPI{
     private int thingPort;
     private String thingHost;
 
+    private int maxLumen;
+
     private static final String NAME = "/light-thing";
     private static final String PROPERTY = NAME + "/properties";
     private static final String ACTIONS = NAME + "/actions";
@@ -35,14 +37,22 @@ public class LightThingProxy implements LightThingAPI{
     public static final String EVENT_CHANGESTATE_ADDRESS = "state-change-event-address";
     public static final String EVENT_CHANGEINTENSITY_ADDRESS = "intensity-change-event-address";
 
-    public LightThingProxy(String thingId, String thingHost, int thingPort){
+    public LightThingProxy(String thingId, String thingHost, int thingPort, int maxLumen){
         this.thingId = thingId;
         this.thingHost = thingHost;
         this.thingPort = thingPort;
 
+        this.maxLumen = maxLumen;
+
         this.vertx = Vertx.vertx();
         this.client = WebClient.create(vertx);
     }
+
+    @Override
+    public int getMaxLumen() {
+        return this.maxLumen;
+    }
+
     @Override
     public String getId() {
         return this.thingId;
@@ -227,14 +237,15 @@ public class LightThingProxy implements LightThingAPI{
     }
 
     private Future<String> longPollChangeState(UUID id){
-        System.out.println("New longpoll request for detect presence");
+        System.out.println("New longpoll request for check light state");
 
         Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_CHANGESTATE)
                 .send()
                 .onSuccess(response -> {
-                    this.vertx.eventBus().publish(EVENT_CHANGESTATE_ADDRESS + id, response.body().toString());
-                    promise.complete(response.bodyAsString());
+                    String res = response.bodyAsString().replace("\"", "");
+                    this.vertx.eventBus().publish(EVENT_CHANGESTATE_ADDRESS + id, res);
+                    promise.complete(res);
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve light level from: " + thingId + "; " + err.getMessage());
@@ -243,7 +254,7 @@ public class LightThingProxy implements LightThingAPI{
     }
 
     private Future<String> longPollChangeIntensity(UUID id){
-        System.out.println("New longpoll request for detect presence");
+        System.out.println("New longpoll request for check light intensity");
 
         Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_CHANGEINTENSITY)

@@ -1,5 +1,7 @@
-package agent;
-
+import agent.DebugAgent;
+import agent.DontWasteEnergyAgent;
+import agent.ListenUserAgent;
+import agent.ProperLightAgent;
 import api.*;
 import io.vertx.core.Vertx;
 
@@ -17,13 +19,13 @@ public class App {
 
         Vertx vertx = Vertx.vertx();
         DebugAgent debugAgent = new DebugAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI);
-        DontWasteEnergyAgent greenAgent = new DontWasteEnergyAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI, lowLightThreshold, highLightThreshold);
+        DontWasteEnergyAgent dontWasteEnergyAgent = new DontWasteEnergyAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI, lowLightThreshold, highLightThreshold);
         ProperLightAgent properLightAgent = new ProperLightAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI, goodLightLevel);
-        ListenUserAgent listenUser = new ListenUserAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI);
+        ListenUserAgent listenUserAgent = new ListenUserAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI);
 
         vertx.deployVerticle(debugAgent);
-        vertx.deployVerticle(greenAgent);
+        vertx.deployVerticle(dontWasteEnergyAgent);
         vertx.deployVerticle(properLightAgent);
-        vertx.deployVerticle(listenUser);
+        vertx.deployVerticle(listenUserAgent);
     }
 }

@@ -75,6 +75,8 @@ function produce(WoT, td) {
             else currentTimer = newPresenceTimer
             presenceTimer = newPresenceTimer;
 
+            thing.writeProperty("presenceTimer", presenceTimer);
+            
             return new Promise((resolve, reject) => {
                 resolve({
                     result: true,

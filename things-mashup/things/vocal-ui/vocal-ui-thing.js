@@ -5,6 +5,7 @@ function produce (WoT, td) {
     WoT.produce(td).then((thing) => {
 
         thing.setPropertyWriteHandler("command", (command) => {
+            console.log("new command : " + command);
             lastCommand = command
             thing.emitEvent("newCommand", {
                 message: "New command by the user",

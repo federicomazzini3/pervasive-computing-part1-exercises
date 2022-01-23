@@ -17,6 +17,11 @@
 
     }, 
     "events": {
-        
+        "changeLight": {
+            "description": "The sensor has measured at least a 10% modify",
+            "data": {
+                "type": "integer"
+            }
+        }
     }
 }

@@ -47,7 +47,7 @@ public class VocalUIProxy implements VocalUIAPI{
         client.get(thingPort, thingHost, PROPERTY_COMMAND)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_COMMAND);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_COMMAND);
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -62,7 +62,7 @@ public class VocalUIProxy implements VocalUIAPI{
         client.put(thingPort, thingHost, PROPERTY_COMMAND)
                 .sendBuffer(Buffer.buffer(command))
                 .onSuccess(response -> {
-                    System.out.println("PUT request to: " + thingHost+":"+thingPort + PROPERTY_COMMAND);
+                    //System.out.println("PUT request to: " + thingHost+":"+thingPort + PROPERTY_COMMAND);
                     promise.complete();
                 })
                 .onFailure(err -> {
@@ -88,7 +88,7 @@ public class VocalUIProxy implements VocalUIAPI{
                 .onSuccess(response -> {
                     JsonObject res = response.bodyAsJsonObject();
                     this.vertx.eventBus().publish(EVENT_NEWCOMMAND_ADDRESS + id, res.getString("command"));
-                    System.out.println("new longpoll request");
+                    //System.out.println("new longpoll request");
                     promise.complete();
                 })
                 .onFailure(err -> {

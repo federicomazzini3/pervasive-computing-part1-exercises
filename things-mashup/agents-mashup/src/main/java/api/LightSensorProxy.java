@@ -43,7 +43,7 @@ public class LightSensorProxy implements LightSensorAPI{
         client.get(thingPort, thingHost, PROPERTY_LIGHTLEVEL)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("GET request to: " + thingHost+":"+thingPort+PROPERTY_LIGHTLEVEL);
+                    //System.out.println("GET request to: " + thingHost+":"+thingPort+PROPERTY_LIGHTLEVEL);
                     promise.complete(Integer.parseInt(response.bodyAsString()));
                 })
                 .onFailure(err -> {
@@ -58,7 +58,7 @@ public class LightSensorProxy implements LightSensorAPI{
         client.put(thingPort, thingHost, PROPERTY_LIGHTLEVEL)
                 .sendBuffer(Buffer.buffer(newLightLevel.toString()))
                 .onSuccess(response -> {
-                    System.out.println("PUT request to: " + thingHost+":"+thingPort+PROPERTY_LIGHTLEVEL);
+                    //System.out.println("PUT request to: " + thingHost+":"+thingPort+PROPERTY_LIGHTLEVEL);
                     promise.complete();
                 })
                 .onFailure(err -> {
@@ -78,13 +78,13 @@ public class LightSensorProxy implements LightSensorAPI{
     }
 
     private Future<Integer> longPollChangeLightLevel(UUID id){
-        System.out.println("New longpoll request for check light state");
+        //System.out.println("New longpoll request for check light state");
 
         Promise<Integer> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_CHANGELIGHTLEVEL)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     this.vertx.eventBus().publish(EVENT_CHANGELIGHTLEVEL_ADDRESS + id, response.body().toString());
                     promise.complete(Integer.parseInt(response.bodyAsString()));
                 })

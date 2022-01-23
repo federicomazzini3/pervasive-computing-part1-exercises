@@ -51,7 +51,7 @@ public class PresenceDetectorProxy implements PresenceDetectorAPI {
         client.get(thingPort, thingHost, PROPERTY_PRESENCE)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_PRESENCE);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_PRESENCE);
                     promise.complete(Boolean.parseBoolean(response.bodyAsString()));
                 })
                 .onFailure(err -> {
@@ -66,7 +66,7 @@ public class PresenceDetectorProxy implements PresenceDetectorAPI {
         client.get(thingPort, thingHost, PROPERTY_PRESENCETIMER)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_PRESENCETIMER);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_PRESENCETIMER);
                     promise.complete(Integer.parseInt(response.bodyAsString()));
                 })
                 .onFailure(err -> {
@@ -81,7 +81,7 @@ public class PresenceDetectorProxy implements PresenceDetectorAPI {
         client.put(thingPort, thingHost, PROPERTY_PRESENCE)
                 .sendBuffer(Buffer.buffer("true"))
                 .onSuccess(response -> {
-                    System.out.println("PUT request to: " + thingHost+":"+thingPort + PROPERTY_PRESENCE);
+                    //System.out.println("PUT request to: " + thingHost+":"+thingPort + PROPERTY_PRESENCE);
                     promise.complete();
                 })
                 .onFailure(err -> {
@@ -111,7 +111,7 @@ public class PresenceDetectorProxy implements PresenceDetectorAPI {
     }
 
     private Future<Void> longPollDetectPresence(UUID id){
-        System.out.println("New longpoll request for detect presence");
+        //System.out.println("New longpoll request for detect presence");
 
         Promise<Void> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_DETECTPRESENCE)
@@ -127,7 +127,7 @@ public class PresenceDetectorProxy implements PresenceDetectorAPI {
     }
 
     private Future<Void> longPollNonDetectPresence(UUID id){
-        System.out.println("New longpoll request for non detect presence");
+        //System.out.println("New longpoll request for non detect presence");
 
         Promise<Void> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_NONDETECTPRESENCE)

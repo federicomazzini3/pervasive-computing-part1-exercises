@@ -64,7 +64,7 @@ public class LightThingProxy implements LightThingAPI{
         client.get(thingPort, thingHost, PROPERTY_ISON)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_ISON);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_ISON);
                     promise.complete(Boolean.parseBoolean(response.bodyAsString()));
                 })
                 .onFailure(err -> {
@@ -79,7 +79,7 @@ public class LightThingProxy implements LightThingAPI{
         client.get(thingPort, thingHost, PROPERTY_ISOFF)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_ISOFF);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_ISOFF);
                     promise.complete(Boolean.parseBoolean(response.bodyAsString()));
                 })
                 .onFailure(err -> {
@@ -94,7 +94,7 @@ public class LightThingProxy implements LightThingAPI{
         client.get(thingPort, thingHost, PROPERTY_INTENSITY)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_INTENSITY);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_INTENSITY);
                     promise.complete(Integer.parseInt(response.bodyAsString()));
                 })
                 .onFailure(err -> {
@@ -109,7 +109,7 @@ public class LightThingProxy implements LightThingAPI{
         client.get(thingPort, thingHost, PROPERTY_STATUS)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_STATUS);
+                    //System.out.println("Requesto to: " + thingHost+":"+thingPort+ PROPERTY_STATUS);
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -125,7 +125,7 @@ public class LightThingProxy implements LightThingAPI{
                 .post(this.thingPort, thingHost, ACTION_INCREASE)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -142,7 +142,7 @@ public class LightThingProxy implements LightThingAPI{
                 .addQueryParam("step", step.toString())
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -158,7 +158,7 @@ public class LightThingProxy implements LightThingAPI{
                 .post(this.thingPort, thingHost, ACTION_DECREASE)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -175,7 +175,7 @@ public class LightThingProxy implements LightThingAPI{
                 .addQueryParam("step", step.toString())
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -191,7 +191,7 @@ public class LightThingProxy implements LightThingAPI{
                 .post(this.thingPort, thingHost, ACTION_SWITCHON)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -207,7 +207,7 @@ public class LightThingProxy implements LightThingAPI{
                 .post(this.thingPort, thingHost, ACTION_SWITCHOFF)
                 .send()
                 .onSuccess(response -> {
-                    System.out.println(response.bodyAsString());
+                    //System.out.println(response.bodyAsString());
                     promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
@@ -237,7 +237,7 @@ public class LightThingProxy implements LightThingAPI{
     }
 
     private Future<String> longPollChangeState(UUID id){
-        System.out.println("New longpoll request for check light state");
+        //System.out.println("New longpoll request for check light state");
 
         Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_CHANGESTATE)
@@ -254,7 +254,7 @@ public class LightThingProxy implements LightThingAPI{
     }
 
     private Future<String> longPollChangeIntensity(UUID id){
-        System.out.println("New longpoll request for check light intensity");
+        //System.out.println("New longpoll request for check light intensity");
 
         Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_CHANGEINTENSITY)

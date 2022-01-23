@@ -19,9 +19,11 @@ public class App {
         DebugAgent debugAgent = new DebugAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI);
         DontWasteEnergyAgent greenAgent = new DontWasteEnergyAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI, lowLightThreshold, highLightThreshold);
         ProperLightAgent properLightAgent = new ProperLightAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI, goodLightLevel);
+        ListenUserAgent listenUser = new ListenUserAgent(lightThingAPI, lightSensorAPI, presenceDetectorAPI, vocalUIAPI);
 
         vertx.deployVerticle(debugAgent);
         vertx.deployVerticle(greenAgent);
         vertx.deployVerticle(properLightAgent);
+        vertx.deployVerticle(listenUser);
     }
 }

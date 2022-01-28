@@ -4,7 +4,7 @@ public class Main {
 
     public static void main (String[]args) {
         Vertx vertx = Vertx.vertx();
-        ServerVerticle main = new ServerVerticle();
-        vertx.deployVerticle(main);
+        ServerVerticle serverVerticle = new ServerVerticle(8000);
+        vertx.deployVerticle(serverVerticle);
     }
 }

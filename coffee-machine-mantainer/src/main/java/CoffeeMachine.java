@@ -1,22 +1,21 @@
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
-
-import java.util.Date;
+import io.vertx.core.json.JsonArray;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
 public interface CoffeeMachine {
 
     String getId();
 
     /** PROPERTIES **/
-    Future<JsonObject> availableResources();
+    Future<JsonArray> availableResources();
 
-    Future<JsonObject> possibleDrinks();
+    Future<JsonArray> possibleDrinks();
 
-    Future<Date> lastDrink();
+    Future<Optional<OffsetDateTime>> lastDrink();
 
-    Future<Date> lastMaintenance();
+    Future<Optional<OffsetDateTime>> lastMaintenance();
 
     Future<Integer> servedCounter();
 

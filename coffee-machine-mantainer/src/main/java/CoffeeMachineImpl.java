@@ -2,12 +2,16 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CoffeeMachineImpl implements CoffeeMachine {
@@ -16,12 +20,10 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     private WebClient client;
 
     private String thingId;
-    private int thingPort;
-    private String thingHost;
+    public int thingPort;
+    public String thingHost;
 
-    private String id;
-
-    private static final String NAME = "/light-thing";
+    private static final String NAME = "/smart-coffee-machine";
     private static final String PROPERTY = NAME + "/properties";
     private static final String ACTIONS = NAME + "/actions";
     private static final String EVENT = NAME + "/events";
@@ -29,8 +31,8 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     private static final String PROPERTY_POSSIBLEDRINKS = PROPERTY + "/possibleDrinks";
     private static final String PROPERTY_LASTDRINK = PROPERTY + "/lastDrink";
     private static final String PROPERTY_LASTMAINTENANCE = PROPERTY + "/lastMantainance";
-    private static final String PROPERTY_SERVEDCOUNTER = ACTIONS + "/servedCounter";
-    private static final String PROPERTY_MAINTENANCENEEDED = ACTIONS + "/maintenanceNeeded";
+    private static final String PROPERTY_SERVEDCOUNTER = PROPERTY + "/servedCounter";
+    private static final String PROPERTY_MAINTENANCENEEDED = PROPERTY + "/maintenanceNeeded";
     private static final String ACTION_MAKEDRINK = ACTIONS + "/makeDrink";
     private static final String EVENT_OUTOFRESOURCES = EVENT + "/outOfResource";
     private static final String EVENT_NEEDMAINTENANCE = EVENT + "/needMantainance";
@@ -40,28 +42,27 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     public static final String EVENT_NEEDMAINTENANCE_ADDRESS = "need-maintenance-event-address";
     public static final String EVENT_LIMITEDRESOURCES_ADDRESS = "limited-resources-event-address";
 
-    public CoffeeMachineImpl(String thingId, String thingHost, int thingPort){
+    public CoffeeMachineImpl(Vertx vertx, String thingId, String thingHost, int thingPort){
         this.thingId = thingId;
         this.thingHost = thingHost;
         this.thingPort = thingPort;
 
-        this.vertx = Vertx.vertx();
+        this.vertx = vertx;
         this.client = WebClient.create(vertx);
     }
 
     @Override
     public String getId() {
-        return id;
+        return thingId;
     }
 
     @Override
-    public Future<JsonObject> availableResources() {
-        Promise<JsonObject> promise = Promise.promise();
+    public Future<JsonArray> availableResources() {
+        Promise<JsonArray> promise = Promise.promise();
         client.get(thingPort, thingHost, PROPERTY_AVAILABLERESOURCES)
                 .send()
                 .onSuccess(response -> {
-                    log(response.bodyAsJsonObject().toString());
-                    promise.complete(response.bodyAsJsonObject());
+                    promise.complete(response.bodyAsJsonArray());
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve available resources from: " + thingId + "; " + err.getMessage());
@@ -70,13 +71,12 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     }
 
     @Override
-    public Future<JsonObject> possibleDrinks() {
-        Promise<JsonObject> promise = Promise.promise();
+    public Future<JsonArray> possibleDrinks() {
+        Promise<JsonArray> promise = Promise.promise();
         client.get(thingPort, thingHost, PROPERTY_POSSIBLEDRINKS)
                 .send()
                 .onSuccess(response -> {
-                    log(response.bodyAsJsonObject().toString());
-                    promise.complete(response.bodyAsJsonObject());
+                    promise.complete(response.bodyAsJsonArray());
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve possible drinks from: " + thingId + "; " + err.getMessage());
@@ -85,16 +85,17 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     }
 
     @Override
-    public Future<Date> lastDrink() {
-        Promise<Date> promise = Promise.promise();
+    public Future<Optional<OffsetDateTime>> lastDrink() {
+        Promise<Optional<OffsetDateTime>> promise = Promise.promise();
         client.get(thingPort, thingHost, PROPERTY_LASTDRINK)
                 .send()
                 .onSuccess(response -> {
                     try {
-                        Date lastDrink = DateFormat.getDateInstance().parse(response.bodyAsString());
-                        promise.complete(lastDrink);
-                    } catch (ParseException err) {
-                        promise.fail("Can't retrieve last drink from: " + thingId + "; " + err.getMessage());
+                        String lastDrinkString = response.bodyAsString().replace("\"", "");
+                        OffsetDateTime lastDrink = OffsetDateTime.parse(lastDrinkString);
+                        promise.complete(Optional.of(lastDrink));
+                    } catch (Exception err) {
+                        promise.complete(Optional.empty());
                     }
                 })
                 .onFailure(err -> {
@@ -104,16 +105,18 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     }
 
     @Override
-    public Future<Date> lastMaintenance() {
-        Promise<Date> promise = Promise.promise();
+    public Future<Optional<OffsetDateTime>> lastMaintenance() {
+        Promise<Optional<OffsetDateTime>> promise = Promise.promise();
         client.get(thingPort, thingHost, PROPERTY_LASTMAINTENANCE)
                 .send()
                 .onSuccess(response -> {
                     try {
-                        Date lastDrink = DateFormat.getDateInstance().parse(response.bodyAsString());
-                        promise.complete(lastDrink);
-                    } catch (ParseException err) {
-                        promise.fail("Can't retrieve last maintenance from: " + thingId + "; " + err.getMessage());
+                        String lastMaintenanceString = response.bodyAsString().replace("\"", "");
+                        OffsetDateTime lastMaintenance = OffsetDateTime.parse(lastMaintenanceString);
+                        promise.complete(Optional.of(lastMaintenance));
+                    } catch (Exception err) {
+                        log("Error retrieving lastMaintenance: " + err.getMessage());
+                        promise.complete(Optional.empty());
                     }
                 })
                 .onFailure(err -> {
@@ -128,8 +131,12 @@ public class CoffeeMachineImpl implements CoffeeMachine {
         client.get(thingPort, thingHost, PROPERTY_SERVEDCOUNTER)
                 .send()
                 .onSuccess(response -> {
-                    log(response.bodyAsString());
-                    promise.complete(Integer.parseInt(response.bodyAsString()));
+                    try{
+                        promise.complete(Integer.parseInt(response.bodyAsString()));
+                    } catch (Exception e){
+                        log("Error retrieving served counter: " + e.getMessage());
+                        promise.fail("Error retrieving served counter: " + e.getMessage());
+                    }
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve served drinks from: " + thingId + "; " + err.getMessage());
@@ -143,7 +150,6 @@ public class CoffeeMachineImpl implements CoffeeMachine {
         client.get(thingPort, thingHost, PROPERTY_MAINTENANCENEEDED)
                 .send()
                 .onSuccess(response -> {
-                    log(response.bodyAsString());
                     promise.complete(response.bodyAsString().equals("true") ? true : false);
                 })
                 .onFailure(err -> {
@@ -198,13 +204,13 @@ public class CoffeeMachineImpl implements CoffeeMachine {
     }
 
 
-    private Future<Boolean> longPollOutOfResource(UUID id) {
-        Promise<Boolean> promise = Promise.promise();
+    private Future<String> longPollOutOfResource(UUID id) {
+        Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_OUTOFRESOURCES)
                 .send()
                 .onSuccess(response -> {
-                    this.vertx.eventBus().publish(EVENT_OUTOFRESOURCES_ADDRESS + id, true);
-                    promise.complete(true);
+                    this.vertx.eventBus().publish(EVENT_OUTOFRESOURCES_ADDRESS + id, response.bodyAsString());
+                    promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve out of resources event from: " + thingId + "; " + err.getMessage());
@@ -212,13 +218,13 @@ public class CoffeeMachineImpl implements CoffeeMachine {
         return promise.future();
     }
 
-    private Future<Boolean> longPollNeedMaintenance(UUID id) {
-        Promise<Boolean> promise = Promise.promise();
+    private Future<String> longPollNeedMaintenance(UUID id) {
+        Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_NEEDMAINTENANCE)
                 .send()
                 .onSuccess(response -> {
-                    this.vertx.eventBus().publish(EVENT_NEEDMAINTENANCE_ADDRESS + id, true);
-                    promise.complete(true);
+                    this.vertx.eventBus().publish(EVENT_NEEDMAINTENANCE_ADDRESS + id, response.bodyAsString());
+                    promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve need maintenance event from: " + thingId + "; " + err.getMessage());
@@ -226,13 +232,13 @@ public class CoffeeMachineImpl implements CoffeeMachine {
         return promise.future();
     }
 
-    private Future<Boolean> longPollLimitedResources(UUID id) {
-        Promise<Boolean> promise = Promise.promise();
+    private Future<String> longPollLimitedResources(UUID id) {
+        Promise<String> promise = Promise.promise();
         client.get(thingPort, thingHost, EVENT_LIMITEDRESOURCES)
                 .send()
                 .onSuccess(response -> {
-                    this.vertx.eventBus().publish(EVENT_LIMITEDRESOURCES_ADDRESS + id, true);
-                    promise.complete(true);
+                    this.vertx.eventBus().publish(EVENT_LIMITEDRESOURCES_ADDRESS + id, response.bodyAsString());
+                    promise.complete(response.bodyAsString());
                 })
                 .onFailure(err -> {
                     promise.fail("Can't retrieve limited resources event from: " + thingId + "; " + err.getMessage());

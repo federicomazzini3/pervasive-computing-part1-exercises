@@ -1,7 +1,9 @@
 const Servient = require('@node-wot/core').Servient;
 const HttpServer = require('@node-wot/binding-http').HttpServer;
 const servient = new Servient();
-servient.addServer(new HttpServer({port:8080}));
+servient.addServer(new HttpServer({
+    port: 8080
+}));
 
 servient.start().then((WoT) => {
 
@@ -203,33 +205,34 @@ servient.start().then((WoT) => {
                 notify("admin@coffeeMachine.com", `The coffe machine need maintenance!`);
             });
 
-            thing.setPropertyWriteHandler("availableResources", (resources) => {
-                //every time that the availableResources change
-                //update the drink menu and send an event if some resource is low or finished
-                const limitedRes = 15;
-                return new Promise((resolve, reject) => {
-                    resolve(resources);
-                    resources.forEach((resource) => {
-                        if (resource.value <= 0) {
-                            console.log("Resource " + resource.name + " finished")
-                            thing.writeProperty("maintenanceNeeded", true)
-                            thing.emitEvent("outOfResource", `${resource} finshed: ${resources[resource]}%`);
-                            thing.emitEvent("needMantainance", "The coffe machine need maintenance!");
-                            thing.readProperty("possibleDrinks").then((drinks) => {
-                                thing.writeProperty("possibleDrinks", updateDrinksWithAvailability(resource, drinks))
-                            })
-                        } else if (resource.value <= 15) {
-                            console.log("Resource " + resource.name + " is low")
-                            thing.writeProperty("maintenanceNeeded", true)
-                            thing.emitEvent("limitedResource", `Low level of ${resource}: ${resources[resource]}%`);
-                            thing.emitEvent("needMantainance", "The coffe machine need maintenance!");
-                            thing.readProperty("possibleDrinks").then((drinks) => {
-                                thing.writeProperty("possibleDrinks", updateDrinksWithAvailability(resource, drinks))
-                            })
-                        }
-                    })
-                })
-            });
+            thing.setPropertyWriteHandler("availableResources", resources => {
+                let outOf = "";
+                let limited = "";
+                console.log(resources);
+                resources.forEach((resource) => {
+                    if (resource.value <= 0) {
+                        outOf += ", " + resource.name;
+                        thing.readProperty("possibleDrinks").then((drinks) => {
+                            thing.writeProperty("possibleDrinks", updateDrinksWithAvailability(resource, drinks))
+                        })
+                    } else if (resource.value <= 15) {
+                        limited += ", " + resource.name;
+                        thing.readProperty("possibleDrinks").then((drinks) => {
+                            thing.writeProperty("possibleDrinks", updateDrinksWithAvailability(resource, drinks))
+                        })
+                    }
+                });
+
+                if(outOf.length > 0){
+                    thing.emitEvent("outOfResource", `Resource ${outOf.substring(1)} are finished!`);
+                    thing.emitEvent("needMantainance", `The coffe machine need maintenance!`);
+                    thing.writeProperty("maintenanceNeeded", true)
+                } else if(limited.length > 0){
+                    thing.emitEvent("limitedResource", `Resource ${limited.substring(1)} are limited!`);
+                    thing.emitEvent("needMantainance", `The coffe machine need maintenance!`);
+                    thing.writeProperty("maintenanceNeeded", true)
+                }
+            })
 
             // Finally expose the thing
             thing.expose().then(() => {

@@ -1,8 +1,11 @@
 {
   "dependencies": {
     "@node-wot/binding-http": "^0.7.8",
-    "@node-wot/core": "^0.7.8"
-  }, 
+    "@node-wot/binding-websockets": "^0.7.8",
+    "@node-wot/core": "^0.7.8",
+    "websocket": "^1.0.34",
+    "ws": "^8.4.2"
+  },
   "scripts": {
     "start": "node cm-thing"
   }

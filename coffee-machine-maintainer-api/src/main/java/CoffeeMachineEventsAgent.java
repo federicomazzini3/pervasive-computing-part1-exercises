@@ -1,4 +1,6 @@
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 
 public class CoffeeMachineEventsAgent extends AbstractVerticle {
 
@@ -11,18 +13,21 @@ public class CoffeeMachineEventsAgent extends AbstractVerticle {
     public void start(){
 
         coffeeMachine.subscribeToLimitedResource(limitedResource -> {
-            log("Limited resources at coffe machine: " + coffeeMachine.getId() + "\n" + limitedResource);
-            this.getVertx().eventBus().publish("event", "Limited resources at coffe machine: " + coffeeMachine.getId() + "" + limitedResource);
+            log(limitedResource);
+            JsonObject json = new JsonObject().put("event", "limitedResource").put("message", limitedResource).put("machineId", coffeeMachine.getId());
+            this.getVertx().eventBus().publish("event", json);
         });
 
         coffeeMachine.subscribeToNeedMaintenance(maintenance -> {
-            log("Coffe machine " + coffeeMachine.getId() + " need maintenance!" + "\n" + maintenance);
-            this.getVertx().eventBus().publish("event", "Coffe machine " + coffeeMachine.getId() + " need maintenance!" + "\n" + maintenance);
+            log(maintenance);
+            JsonObject json = new JsonObject().put("event", "needMaintenance").put("message", maintenance).put("machineId", coffeeMachine.getId());
+            this.getVertx().eventBus().publish("event", json);
         });
 
         coffeeMachine.subscribeToOutOfResources(outOfResource -> {
-            log("Out of resources at coffe machine: " + coffeeMachine.getId() + "\n" + outOfResource);
-            this.getVertx().eventBus().publish("event", "Out of resources at coffe machine: " + coffeeMachine.getId() + "\n" + outOfResource);
+            log(outOfResource);
+            JsonObject json = new JsonObject().put("event", "limitedResource").put("message", outOfResource).put("machineId", coffeeMachine.getId());
+            this.getVertx().eventBus().publish("event", json);
         });
     }
 

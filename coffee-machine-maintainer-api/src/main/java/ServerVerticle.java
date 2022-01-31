@@ -7,6 +7,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -21,11 +22,30 @@ public class ServerVerticle extends AbstractVerticle {
     public ServerVerticle(int port) {
         this.port = port;
         this.twins = new HashMap<>();
+        this.subscribers = new ArrayList<>();
     }
 
     public void start() {
 
         Router mainRouter = Router.router(vertx);
+
+        Set<String> allowedHeaders = new HashSet<>();
+        allowedHeaders.add("x-requested-with");
+        allowedHeaders.add("Access-Control-Allow-Origin");
+        allowedHeaders.add("origin");
+        allowedHeaders.add("Content-Type");
+        allowedHeaders.add("accept");
+        allowedHeaders.add("X-PINGARUNER");
+
+        Set<HttpMethod> allowedMethods = new HashSet<>();
+        allowedMethods.add(HttpMethod.GET);
+        allowedMethods.add(HttpMethod.POST);
+        allowedMethods.add(HttpMethod.OPTIONS);
+        allowedMethods.add(HttpMethod.DELETE);
+        allowedMethods.add(HttpMethod.PATCH);
+        allowedMethods.add(HttpMethod.PUT);
+
+        mainRouter.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders).allowedMethods(allowedMethods));
 
         mainRouter.route().handler(routingContext -> {
             System.out.println("New http request " + routingContext.request().absoluteURI());
@@ -60,7 +80,7 @@ public class ServerVerticle extends AbstractVerticle {
             log("add machine body: " + routingContext.getBodyAsString());
             JsonObject newMachine = routingContext.getBodyAsJson();
             String host = newMachine.getString("host");
-            int port = newMachine.getInteger("port");
+            int port = Integer.parseInt(newMachine.getString("port"));
             this.addMachine(host, port)
                             .onSuccess(msg -> {
                                 routingContext.response().end(new JsonObject().put("result", true).put("message", "You add a new machine").put("host", host).put("port", port).toString());
@@ -80,7 +100,8 @@ public class ServerVerticle extends AbstractVerticle {
                 ServerWebSocket ws = it.next();
                 if (!ws.isClosed()) {
                     try {
-                        ws.write(Buffer.buffer(msg.toString()));
+                        log(msg.body().toString());
+                        ws.writeTextMessage(new JsonObject(msg.body().toString()).toString());
                     } catch (Exception ex) {
                         it.remove();
                     }

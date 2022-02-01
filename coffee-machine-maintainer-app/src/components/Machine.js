@@ -3,7 +3,7 @@ import {BiDetail} from 'react-icons/bi'
 
 const Machine = ({machine, onDetail}) => {
     return (
-        <div className={`task ${!machine.maintenanceNeeded ? '' : 'reminder'}`}>
+        <div className={`machine ${!machine.maintenanceNeeded ? '' : 'maintenance'}`}>
             <h3>
                 {machine.host + ":" + machine.port}
 

@@ -4,7 +4,7 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Event from './Event'
 
-export const WebSocketDemo = ({onDetail}) => {
+export const WebSocketDemo = ({onDetail, onEvent}) => {
     //Public API that will echo messages sent to it back to the client
     const [socketUrl, setSocketUrl] = useState('ws://localhost:8000');
     const [messageHistory, setMessageHistory] = useState([]);
@@ -25,6 +25,7 @@ export const WebSocketDemo = ({onDetail}) => {
             console.log(msg)
             setMessageHistory(prev => prev.concat(msg));
             setOpen(true)
+            onEvent()
         }
     }, [lastMessage, setMessageHistory]);
 

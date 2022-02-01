@@ -61,6 +61,13 @@ body {
   color: #fff;
 }
 
+.machine {
+  background: rgb(35, 119, 49);
+  margin: 5px;
+  padding: 10px 20px;
+  color: #fff;
+}
+
 .sugar {
   background: #cc2121;
   margin: 5px;
@@ -94,7 +101,17 @@ body {
   background: #8b8888;
 }
 
+.machine.maintenance {
+  background: #cc2121;
+}
+
 .task h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.machine h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;

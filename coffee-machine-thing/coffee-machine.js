@@ -2,7 +2,7 @@ const Servient = require('@node-wot/core').Servient;
 const HttpServer = require('@node-wot/binding-http').HttpServer;
 const servient = new Servient();
 servient.addServer(new HttpServer({
-    port: 8080
+    port: 8081
 }));
 
 servient.start().then((WoT) => {

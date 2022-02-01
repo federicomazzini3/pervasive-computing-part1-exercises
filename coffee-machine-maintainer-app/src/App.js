@@ -15,6 +15,7 @@ function App() {
   const [machineListData, setMachineListData] = useState([])
   const [machinesAdded, setMachinesAdded] = useState(0)
   const [selectedMachineId, setSelectedMachineId] = useState("")
+  const [eventCounter, setEventCounter] = useState(0)
 
   useEffect(() => {
     const getMachineList = async () => {
@@ -25,7 +26,7 @@ function App() {
 
     getMachineList()
 
-  }, [machinesAdded])
+  }, [machinesAdded, eventCounter])
 
   const readProperty = async (property) => {
     const res = await fetch(apiAddress + property)
@@ -67,6 +68,10 @@ function App() {
   const toggleAddMachine = () => {
     setShowAdd(!showAdd)
   }
+  
+  const onEvent = () => {
+    setEventCounter(eventCounter + 1)
+  }
 
   return (
     <div className="container" >
@@ -86,7 +91,7 @@ function App() {
       {(state == "machineDetails") &&
         <MachineDetails machineId={selectedMachineId} readProperty={readProperty}/>
       }
-      <WebSocketDemo onDetail={onDetail}></WebSocketDemo>
+      <WebSocketDemo onDetail={onDetail} onEvent={onEvent}></WebSocketDemo>
     </div>
 
   );
